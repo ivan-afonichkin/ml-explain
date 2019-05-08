@@ -4,9 +4,27 @@ from PIL import Image
 import torch
 
 
+def plot_row_images(images, titles=None, normalize=True, **kwargs):
+    if titles and len(images) != len(titles):
+        raise RuntimeError("Images and titles should be arrays of the same size, "
+                           "but they are not {} != {}".format(len(images), len(titles)))
+
+    n_images = len(images)
+    fig = plt.figure(figsize=(4 * n_images, 4))
+
+    for i, image in enumerate(images):
+        ax = fig.add_subplot(1, n_images, i + 1)
+        plot_img(image, normalize=normalize, ax=ax, **kwargs)
+
+        if titles:
+            ax.set_title(titles[i])
+
+    plt.show()
+
+
 def plot_img(image, normalize=True, ax=None, **kwargs):
     if isinstance(image, torch.Tensor):
-        image = np.float32(image)
+        image = np.float32(image.detach().numpy())
 
     if len(image.shape) == 4:
         # We can reduce first dimension if there is only 1 sample

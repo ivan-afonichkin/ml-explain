@@ -48,7 +48,10 @@ class VanillaGradientExplainer:
 
 def main():
     from mlexplain.vision.utils import plot_img, plot_img_heatmap, load_img
+    from mlexplain.utils import read_imagenet_clsidx_to_labels
     import torch.nn.functional as F
+
+    clsidx_to_labels = read_imagenet_clsidx_to_labels('data/imagenet_1000_clsidx_to_labels.json')
 
     model = torchvision.models.vgg16(pretrained=True)
     model.eval()
@@ -62,7 +65,9 @@ def main():
 
     model_output = F.softmax(model(img)[0], dim=0)
     most_probable_class = int(torch.argmax(model_output))
-    print(f"Probability of {most_probable_class} class is {model_output[most_probable_class]}")
+    print(f"Probability of {most_probable_class}[{clsidx_to_labels[most_probable_class]}] "
+          f"class is {model_output[most_probable_class]}")
+
     explaining_result = explainer.explain(img, most_probable_class)
 
     new_model_output = F.softmax(model(img - 1.0 * explaining_result)[0], dim=0)
