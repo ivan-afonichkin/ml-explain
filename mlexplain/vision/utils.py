@@ -14,12 +14,34 @@ def plot_row_images(images, titles=None, normalize=True, **kwargs):
 
     for i, image in enumerate(images):
         ax = fig.add_subplot(1, n_images, i + 1)
+        ax.axis('off')
         plot_img(image, normalize=normalize, ax=ax, **kwargs)
 
         if titles:
             ax.set_title(titles[i])
 
     plt.show()
+
+
+def plot_grid_images(images, nrows, ncols, titles=None, save=False, fname=None, normalize=True, **kwargs):
+    if titles and len(images) != len(titles):
+        raise RuntimeError("Images and titles should be arrays of the same size, "
+                           "but they are not {} != {}".format(len(images), len(titles)))
+
+    fig = plt.figure(figsize=(4 * ncols, 4 * nrows))
+
+    for i, image in enumerate(images):
+        ax = fig.add_subplot(nrows, ncols, i + 1)
+        plot_img(image, normalize=normalize, ax=ax, **kwargs)
+        ax.axis('off')
+
+        if titles:
+            ax.set_title(titles[i])
+
+    if save:
+        plt.savefig(f'results/{fname}')
+    else:
+        plt.show()
 
 
 def plot_img(image, normalize=True, ax=None, **kwargs):
