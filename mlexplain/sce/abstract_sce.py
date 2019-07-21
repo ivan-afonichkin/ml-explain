@@ -30,7 +30,7 @@ class AbstractSCE:
         """
 
         # Return L1 norm by default
-        return torch.norm(masks, p=1)
+        return torch.norm(masks, p=1) / masks.shape[0]
 
     def mask_distance(self, mask1, mask2):
         """
@@ -114,11 +114,25 @@ class AbstractSCE:
 
         raise NotImplementedError("init_masks should be implemented.")
 
+    def get_target_class_probabilities(self, X):
+        """
+        Return array of probabilities for target class for every object
+        Parameters
+        ----------
+        X
+        torch tensor, first dimension has N elements = N objects
+
+        Returns
+        -------
+        Array of probailities
+        """
+
+        return self.model(X)[:, self.target_class]
+
     def cost(self, X, lambda_coef, mu_coef, return_all_terms=False):
         counterfactuals = self.perturbation_operator(X, self.masks)
 
-        # TODO(ivan): should be abstracted to specific implementation how to choose the target class
-        term1 = torch.mean(self.model(counterfactuals)[:, self.target_class])
+        term1 = torch.mean(self.get_target_class_probabilities(counterfactuals))
         term2 = torch.mean(self.mask_norm(self.masks))
         term3 = self.mean_distances(self.masks)
 
@@ -132,9 +146,10 @@ class AbstractSCE:
         if force_masks_init or not hasattr(self, 'masks'):
             self.masks = self.init_masks(X)
 
-        optimizer = optim.SGD(self.masks, lr=lr)
+        optimizer = optim.SGD([self.masks], lr=lr)
 
         for i in range(n_iter):
+            optimizer.zero_grad()
             cost_value, term1, term2, term3 = self.cost(X, lambda_coef, mu_coef, return_all_terms=True)
             cost_value.backward()
 
