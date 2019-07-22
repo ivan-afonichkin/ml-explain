@@ -68,6 +68,9 @@ class AbstractSCE:
         Scalar value, mean of pairwise distances between all the masks
         """
         N = masks.shape[0]
+        
+        if N <= 1:
+            return 0.0
 
         res = 0.0
         for i in range(N):
