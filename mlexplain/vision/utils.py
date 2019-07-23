@@ -74,7 +74,7 @@ def plot_img(image, normalize=True, ax=None, **kwargs):
         plt.show()
 
 
-def plot_img_heatmap(image, heatmap, alpha=0.5):
+def plot_img_heatmap(image, heatmap, alpha=0.5, ax=None):
     def _reduce_channels(img):
         if img.shape[0] == 3:
             img = img.mean((0,), keepdim=True)
@@ -84,8 +84,11 @@ def plot_img_heatmap(image, heatmap, alpha=0.5):
 
         return img
 
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax_set = ax is not None
+
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
 
     plot_img(image, ax=ax)
 
@@ -94,7 +97,8 @@ def plot_img_heatmap(image, heatmap, alpha=0.5):
 
     plot_img(heatmap, normalize=False, ax=ax, cmap='hot', interpolation='nearest', alpha=alpha)
 
-    plt.show()
+    if not ax_set:
+        plt.show()
 
 
 def load_img(img_path, imagenet=False, resize=None, normalize=False):

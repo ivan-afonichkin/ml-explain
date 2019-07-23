@@ -68,7 +68,7 @@ class AbstractSCE:
         Scalar value, mean of pairwise distances between all the masks
         """
         N = masks.shape[0]
-        
+
         if N <= 1:
             return 0.0
 
@@ -145,6 +145,7 @@ class AbstractSCE:
 
     def fit(self, X, lambda_coef, mu_coef, lr=0.01, n_iter=100,
             force_masks_init=True, verbose=True, verbose_every_iterations=10):
+        self.X = X
 
         if force_masks_init or not hasattr(self, 'masks'):
             self.masks = self.init_masks(X)
